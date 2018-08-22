@@ -4,9 +4,6 @@ const userRootDir = process.cwd();
 const progRootDir = '/home/turiya/Google Drive/Coding/Northcoders 12-Week Course/Block2/Project Generator'
 const { exec, spawn } = require('child_process');
 
-fs.readdir(`${progRootDir}/templates`, 'utf8', (err, data) => { console.log(data, '>>>>>>>>>.') });
-
-
 fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => { 
     inquirer.prompt({
         name: 'project-choice',
@@ -23,7 +20,7 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
                 message: 'Project name:'
             }).then(answers => {
                 const projectName = answers['project-name'];
-                const destinationPath = `${userRootDir}/${projectName}`
+                destinationPath = `${userRootDir}/${projectName}`
                 fs.mkdir(destinationPath, (err, folder) => {
                     fs.readdir(templatePath, (err, data) => {
                         data.forEach(item => {
@@ -48,10 +45,10 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
                                                     console.log('Installing npm modules...');
                                                     exec('npm install', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
                                                         console.log('npm package successfully installed');
-                                                        console.log('Installing test suite...')
+                                                        console.log('Installing test modules...')
                                                         exec('npm install chai', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
                                                             exec('npm install mocha', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
-                                                                console.log('Test suite successfully installed'); 
+                                                                console.log('Test modules successfully installed'); 
                                                                 inquirer.prompt({
                                                                     name : 'createGit',
                                                                     message : 'Create a git repository for this project?',
@@ -60,15 +57,30 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
                                                                         if (answers.createGit === true) {
                                                                             exec('git init ; git add ./ ; git commit -m "first commit"', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout,stderr) => {
                                                                                 console.log('Git repo created, with initial commit');
-                                                                                exec('code ./index.js', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
-                                                                                    console.log('Project Setup Complete!');
-                                                                                });
-                                                                            })
-                                                                        } else {
-                                                                            exec('code .', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
-                                                                                console.log('Project Setup Complete!');
-                                                                        });
-                                                                    }
+                                                                                inquirer.prompt({
+                                                                                    name : 'addRemote',
+                                                                                    message : 'Add a github remote origin?',
+                                                                                    type : 'confirm'  
+                                                                                }).then(answers => {
+                                                                                    if (answers.addRemote === true) {
+                                                                                        console.log('Please go to https://github.com/new to create a new repo');
+                                                                                        inquirer.prompt({
+                                                                                            name : 'getRemoteUrl',
+                                                                                            message : 'Paste your github URL here to connect:',
+                                                                                            type : 'input'
+                                                                                        }).then(answers => {
+                                                                                            console.log(answers);
+                                                                                            const gitUrl = answers.getRemoteUrl
+                                                                                            exec(`git remote add origin ${gitUrl}`, { cwd : destinationPath, encoding : 'utf8'}, (err, stdout, stderr) => {
+                                                                                                console.log('Github connected');
+                                                                                                quitAndOpenProject();
+                                                                                            })
+                                                                                        })
+                                                                                    } else quitAndOpenProject();
+                                                                                })
+                                                                            });
+                                                                        } else quitAndOpenProject();
+                                                                    })
                                                                 });                                                             
                                                             });
                                                         });
@@ -77,7 +89,6 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
                                             });                                      
                                         });
                                     });
-                                  });
                                 };
                             });                                       
                         });
@@ -89,4 +100,8 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
 
 
 
-
+function quitAndOpenProject () {
+    exec('code .', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
+        console.log('Project Setup Complete!');
+    })
+}
