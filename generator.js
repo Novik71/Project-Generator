@@ -35,19 +35,26 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
                                     });
                                 } else if (data.isDirectory()) {
                                   fs.mkdir(`${destinationPath}/${item}`, (err, dir) => {
+                                      if (err) throw err;
                                     fs.readdir(`${templatePath}/${item}`, (err, deepContents) => {
+                                        if (err) throw err;
                                         deepContents.forEach(deepItem => {
                                             const sourceFilePathDeep = `${templatePath}/${deepItem}`;
                                             fs.readFile(sourceFilePathDeep, 'utf8', (err, deepFile) => {
+                                                if (err) throw err;
                                                 const writePathDeep = `${destinationPath}/${item}/${deepItem}`;
                                                 fs.writeFile(writePathDeep, `${deepFile}`, 'utf8', (err, file) => {
+                                                    if (err) throw err;
                                                     console.log('Project folder created');
                                                     console.log('Installing npm modules...');
                                                     exec('npm install', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
+                                                        if (err) throw err;
                                                         console.log('npm package successfully installed');
                                                         console.log('Installing test modules...')
                                                         exec('npm install chai', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
+                                                            if (err) throw err;
                                                             exec('npm install mocha', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
+                                                                if (err) throw err;
                                                                 console.log('Test modules successfully installed'); 
                                                                 inquirer.prompt({
                                                                     name : 'createGit',
@@ -56,6 +63,7 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
                                                                     }).then(answers => {
                                                                         if (answers.createGit === true) {
                                                                             exec('git init ; git add ./ ; git commit -m "first commit"', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout,stderr) => {
+                                                                                if (err) throw err;
                                                                                 console.log('Git repo created, with initial commit');
                                                                                 inquirer.prompt({
                                                                                     name : 'addRemote',
@@ -72,6 +80,7 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
                                                                                             console.log(answers);
                                                                                             const gitUrl = answers.getRemoteUrl
                                                                                             exec(`git remote add origin ${gitUrl}`, { cwd : destinationPath, encoding : 'utf8'}, (err, stdout, stderr) => {
+                                                                                                if (err) throw err;
                                                                                                 console.log('Github connected');
                                                                                                 quitAndOpenProject();
                                                                                             })
@@ -80,7 +89,7 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
                                                                                 })
                                                                             });
                                                                         } else quitAndOpenProject();
-                                                                    })
+                                                                    });
                                                                 });                                                             
                                                             });
                                                         });
@@ -102,6 +111,7 @@ fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => {
 
 function quitAndOpenProject () {
     exec('code .', { cwd : destinationPath, encoding : 'utf8' }, (err, stdout, stderr) => {
+        if (err) throw err;
         console.log('Project Setup Complete!');
-    })
-}
+    });
+};
