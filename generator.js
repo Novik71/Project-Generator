@@ -1,19 +1,22 @@
 const fs = require('fs');
 const inquirer = require('inquirer');
 const userRootDir = process.cwd();
+const progRootDir = '/home/turiya/Google Drive/Coding/Northcoders 12-Week Course/Block2/Project Generator'
 const { exec, spawn } = require('child_process');
-const ls = spawn('ls', ['-lh', '/usr']);
 
-fs.readdir('./templates', 'utf8', (err, data) => { 
+fs.readdir(`${progRootDir}/templates`, 'utf8', (err, data) => { console.log(data, '>>>>>>>>>.') });
+
+
+fs.readdir(`${progRootDir}/templates`, 'utf8', (err, templates) => { 
     inquirer.prompt({
         name: 'project-choice',
         type: 'list',
         message: 'Choose a project template',
-        choices: data
+        choices: templates
     })
         .then(answers => {
             const projectChoice = answers['project-choice'];
-            const templatePath = `./templates/${projectChoice}`;
+            const templatePath = `${progRootDir}/templates/${projectChoice}`;
             inquirer.prompt({
                 name: 'project-name',
                 type: 'input',
@@ -51,7 +54,7 @@ fs.readdir('./templates', 'utf8', (err, data) => {
                                                                 console.log('Test suite successfully installed'); 
                                                                 inquirer.prompt({
                                                                     name : 'createGit',
-                                                                    message : 'Do you want to create a git repo?',
+                                                                    message : 'Create a git repository for this project?',
                                                                     type : 'confirm'                                                                                                                                    
                                                                     }).then(answers => {
                                                                         if (answers.createGit === true) {
